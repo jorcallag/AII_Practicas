@@ -176,11 +176,11 @@ def ventana_principal():
     menubar.add_cascade(label="Datos", menu=datosmenu)
     
     buscarmenu = Menu(menubar, tearoff=0)
-    buscarmenu.add_command(label="Título", command=buscar_titulo)
-    buscarmenu.add_command(label="Géneros", command=buscar_genero)
+    buscarmenu.add_command(label="Descripción", command=buscar_titulo)
+    buscarmenu.add_command(label="Fecha", command=buscar_genero)
     buscarmenu.add_command(label="Fecha", command=buscar_fecha)
     
-    menubar.add_cascade(label="Buscar", menu=buscarmenu)
+    menubar.add_cascade(label="Categoría y título", menu=buscarmenu)
         
     root.config(menu=menubar)
     root.mainloop()
