@@ -8,7 +8,7 @@ import sqlite3
 import re
 import lxml
 
-PAGINAS = 4  #nÃºmero de pÃ¡ginas
+PAGINAS = 1  #nÃºmero de pÃ¡ginas
 
 # lineas para evitar error SSL
 import os, ssl
