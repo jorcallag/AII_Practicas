@@ -14,9 +14,8 @@ from distutils.log import info
 from enum import auto
 
 dirindex="Index"
-PAGINAS = 10  #numero de paginas
+PAGINAS = 1 
 
-# lineas para evitar error SSL
 import os, ssl
 if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
 getattr(ssl, '_create_unverified_context', None)):
@@ -43,20 +42,21 @@ def extraer_articulos():
             infoPublicacion = i.find("span", itemprop="publisher")
             autor = infoPublicacion.find("strong", rel="author").string.strip()
             categoria = infoPublicacion.find("a").string.strip()
-            # fecha = infoPublicacion.find("a").find_next_sibling() 
+            
+            # fecha = infoPublicacion.getText()
             # print(fecha)
+            
             imagen = i.find("div", class_="articulo_img").img['src']
             enlace = "https://blog.bricogeek.com" + i.a['href']
             
-            # d1 = i.findAll("p")
-            # for d in d1:
-            #     if d.find("a"):
-            #         descripcion = ""
-            #     else:
-            #         descripcion = d.string.strip()
-            #         print(descripcion)
-                      
-            lista.append((titulo, autor, categoria, imagen, enlace))
+            d1 = i.findAll("p")
+            descripcion = ""
+            for d in d1:
+                    d = d.getText()
+                    if d != "\n":
+                        descripcion = descripcion + d
+            descripcion = descripcion + ": " + enlace + "\n"    
+            lista.append((titulo, autor, categoria, imagen, descripcion))
         
     return lista
 
@@ -72,7 +72,7 @@ def imprimir_lista(cursor):
         lb.insert(END,"    Autor: "+ str(row['autor']))
         lb.insert(END,"    Categoria: "+ str(row['categoria']))
         lb.insert(END,"    Imagen: "+ str(row['imagen']))
-        lb.insert(END,"    Enlace: "+ str(row['enlace']))
+        lb.insert(END,"    Descripcion: "+ str(row['descripcion']))
         lb.insert(END,"\n\n")
     lb.pack(side=LEFT,fill=BOTH)
     sc.config(command = lb.yview)
@@ -80,7 +80,7 @@ def imprimir_lista(cursor):
  
 def almacenar_datos():
     #define el esquema de la información
-    schem = Schema(titulo=TEXT(stored=True), autor=TEXT(stored=True), categoria=KEYWORD(stored=True,commas=True,lowercase=True), imagen=TEXT(stored=True), enlace=TEXT(stored=True))
+    schem = Schema(titulo=TEXT(stored=True), autor=TEXT(stored=True), categoria=KEYWORD(stored=True,commas=True,lowercase=True), imagen=TEXT(stored=True), descripcion=TEXT(stored=True))
     
     #eliminamos el directorio del índice, si existe
     if os.path.exists("Index"):
@@ -94,8 +94,8 @@ def almacenar_datos():
     i=0
     lista=extraer_articulos()
     for j in lista:
-        #añade cada juego de la lista al índice
-        writer.add_document(titulo=str(j[0]), autor=str(j[1]), categoria=str(j[2]), imagen=str(j[3]), enlace=str(j[4]))    
+        #añade cada articulo de la lista al índice
+        writer.add_document(titulo=str(j[0]), autor=str(j[1]), categoria=str(j[2]), imagen=str(j[3]), descripcion=str(j[4]))    
         i+=1
     writer.commit()
     messagebox.showinfo("Fin de indexado", "Se han indexado "+str(i)+ " articulos")
@@ -105,7 +105,7 @@ def buscar_titulo():
         ix=open_dir("Index")
         with ix.searcher() as searcher:
             query = QueryParser("titulo", ix.schema).parse('"'+str(en.get())+'"')
-            results = searcher.search(query,limit=10) #sÃ³lo devuelve los 10 primeros
+            results = searcher.search(query,limit=10) #devuelve los 10 primeros
             imprimir_lista(results)
     
     v = Toplevel()
@@ -120,7 +120,7 @@ def buscar_categoria():
     def mostrar_lista(event):    
         with ix.searcher() as searcher:
             entrada = str(en.get().lower())
-            #se busca como una frase porque hay temÃ¡ticas con varias palabras
+            #se busca como una frase porque hay categoria con varias palabras
             query = QueryParser("categoria", ix.schema).parse('"'+entrada+'"')
             results = searcher.search(query)
             imprimir_lista(results)
@@ -133,7 +133,7 @@ def buscar_categoria():
     
     ix=open_dir("Index")      
     with ix.searcher() as searcher:
-        #lista de todas las temÃ¡ticas disponibles en el campo de temÃ¡ticas
+        #lista de todas las categorias disponibles en el campo de categorias
         lista_tematicas = [i.decode('utf-8') for i in searcher.lexicon('categoria')]
     
     en = Spinbox(v, values=lista_tematicas, state="readonly")
