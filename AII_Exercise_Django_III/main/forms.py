@@ -1,11 +1,8 @@
 #encoding:utf-8
 from django import forms
-from main.models import Genero
-
    
-class BusquedaPorGeneroForm(forms.Form):
-    genero = forms.ModelChoiceField(label="Seleccione el género", queryset=Genero.objects.all())
-
+class UsuarioBusquedaForm(forms.Form):
+    idUsuario = forms.CharField(label="Id de Usuario", widget=forms.TextInput, required=True)
     
-class BusquedaPorFechaForm(forms.Form):
-    fecha = forms.DateField(label="Fecha (Formato dd/mm/yyyy)", widget=forms.DateInput(format='%d/%m/%Y'))
+class PeliculaBusquedaYearForm(forms.Form):
+    year = forms.IntegerField(label="Año de publicación", widget=forms.TextInput, required=True)

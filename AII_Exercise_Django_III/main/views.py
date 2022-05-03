@@ -1,60 +1,95 @@
 #encoding:utf-8
-from main.models import Genero, Pelicula
-from main.forms import BusquedaPorFechaForm, BusquedaPorGeneroForm
-from main.populateDB import populateDB
-from django.shortcuts import render, redirect
+from main.models import Usuario, Puntuacion, Pelicula
+from main.populateDB import populate
+from main.forms import  UsuarioBusquedaForm, PeliculaBusquedaYearForm
+from django.shortcuts import render
+from django.db.models import Avg, Count
+from django.http.response import HttpResponseRedirect
+from django.conf import settings
 
-#carga los datos desde la web en la BD
-def carga(request):
- 
+
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
+
+
+
+#Funcion de acceso restringido que carga los datos en la BD  
+@login_required(login_url='/ingresar')
+def populateDatabase(request):
+    populate()
+    logout(request)  # se hace logout para obligar a login cada vez que se vaya a poblar la BD
+    return HttpResponseRedirect('/index.html')
+
+
+def mostrar_ocupaciones(request):
+    usuarios= Usuario.objects.all().order_by('ocupacion')
+    return render(request, 'ocupacion_usuarios.html',{'usuarios':usuarios, 'STATIC_URL':settings.STATIC_URL})
+
+# el parámetro pag es para indicar la página que queremos mostrar (paginador uikit). Cada página es de 10 películas
+def mostrar_mejores_peliculas(request,pag):
+    if pag > 5:
+        pag = 5
+    else:
+        if pag < 1:
+            pag = 1
+    #peliculas con más de 100 puntuaciones
+    peliculas = Pelicula.objects.annotate(avg_rating=Avg('puntuacion__puntuacion'),num_rating=Count('puntuacion__puntuacion')).filter(num_rating__gt=100).order_by('-avg_rating')[(pag-1)*10:pag*10]
+    return render(request, 'mejores_peliculas.html', {'peliculas':peliculas, 'pagina':pag, 'STATIC_URL':settings.STATIC_URL})
+
+
+def mostrar_peliculas_year(request):
+    formulario = PeliculaBusquedaYearForm()
+    peliculas = None
+    anyo = None
+    
     if request.method=='POST':
-        if 'Aceptar' in request.POST:      
-            num_peliculas, num_directores, num_generos, num_paises = populateDB()
-            mensaje="Se han almacenado: " + str(num_peliculas) +" peliculas, " + str(num_directores) +" directores, " + str(num_generos) +" generos, " + str(num_paises) +" paises"
-            return render(request, 'cargaBD.html', {'mensaje':mensaje})
+        formulario = PeliculaBusquedaYearForm(request.POST)
+        
+        if formulario.is_valid():
+            anyo=formulario.cleaned_data['year']
+            peliculas = Pelicula.objects.filter(fechaEstreno__year=anyo)
+    
+    return render(request, 'busqueda_peliculas.html', {'formulario':formulario, 'peliculas':peliculas, 'anyo':anyo, 'STATIC_URL':settings.STATIC_URL})
+
+
+def mostrar_puntuaciones_usuario(request):
+    formulario = UsuarioBusquedaForm()
+    puntuaciones = None
+    idusuario = None
+    
+    if request.method=='POST':
+        formulario = UsuarioBusquedaForm(request.POST)
+        
+        if formulario.is_valid():
+            idusuario = formulario.cleaned_data['idUsuario']
+            puntuaciones = Puntuacion.objects.filter(idUsuario = Usuario.objects.get(pk=idusuario))
+            
+    return render(request, 'puntuaciones_usuario.html', {'formulario':formulario, 'puntuaciones':puntuaciones, 'idusuario':idusuario, 'STATIC_URL':settings.STATIC_URL})
+
+
+def index(request):
+    return render(request, 'index.html',{'STATIC_URL':settings.STATIC_URL})
+
+
+def ingresar(request):
+    if request.user.is_authenticated:
+        return(HttpResponseRedirect('/populate'))
+    formulario = AuthenticationForm()
+    if request.method=='POST':
+        formulario = AuthenticationForm(request.POST)
+        usuario=request.POST['username']
+        clave=request.POST['password']
+        acceso=authenticate(username=usuario,password=clave)
+        if acceso is not None:
+            if acceso.is_active:
+                login(request, acceso)
+                return (HttpResponseRedirect('/populate'))
+            else:
+                return render(request, 'mensaje_error.html',{'error':"USUARIO NO ACTIVO",'STATIC_URL':settings.STATIC_URL})
         else:
-            return redirect("/")
-           
-    return render(request, 'confirmacion.html')
+            return render(request, 'mensaje_error.html',{'error':"USUARIO O CONTRASEÑA INCORRECTOS",'STATIC_URL':settings.STATIC_URL})
+                     
+    return render(request, 'ingresar.html', {'formulario':formulario, 'STATIC_URL':settings.STATIC_URL})
 
-#muestra el número de películas que hay en la BD
-def inicio(request):
-    num_peliculas=Pelicula.objects.all().count()
-    return render(request,'inicio.html', {'num_peliculas':num_peliculas})
 
-#muestra un listado con los datos de las películas (título, título original, país, director, géneros y fecha de estreno)
-def lista_peliculas(request):
-    peliculas=Pelicula.objects.all()
-    return render(request,'peliculas.html', {'peliculas':peliculas})
-
-#muestra la lista de películas agrupadas por paises
-def lista_peliculasporpais(request):
-    peliculas=Pelicula.objects.all().order_by('pais')
-    return render(request,'peliculasporpais.html', {'peliculas':peliculas})
-
-#muestra un formulario con un choicefield con la lista de géneros que hay en la BD. Cuando se seleccione
-#un género muestra los datos de todas las películas de ese género
-def buscar_peliculasporgenero(request):
-    formulario = BusquedaPorGeneroForm()
-    peliculas = None
-    
-    if request.method=='POST':
-        formulario = BusquedaPorGeneroForm(request.POST)      
-        if formulario.is_valid():
-            genero=Genero.objects.get(id=formulario.cleaned_data['genero'].id)
-            peliculas = genero.pelicula_set.all()
-            
-    return render(request, 'peliculasbusquedaporgenero.html', {'formulario':formulario, 'peliculas':peliculas})
-
-#muestra un formulario con un datefield. Cuando se escriba una fecha muestra los datos de todas las
-#las películas con una fecha de estreno posterior a ella
-def buscar_peliculasporfecha(request):
-    formulario = BusquedaPorFechaForm()
-    peliculas = None
-    
-    if request.method=='POST':
-        formulario = BusquedaPorFechaForm(request.POST)      
-        if formulario.is_valid():
-            peliculas = Pelicula.objects.filter(fechaEstreno__gte=formulario.cleaned_data['fecha'])
-            
-    return render(request, 'peliculasbusquedaporfecha.html', {'formulario':formulario, 'peliculas':peliculas})
