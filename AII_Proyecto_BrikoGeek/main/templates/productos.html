@@ -1,0 +1,18 @@
+
+
+{% extends 'base.html' %}
+
+{% block encabezado %}
+<h1> Productos BrikoGeek </h1>
+{% endblock %}
+
+  {% block contenido %}
+			{% for row in productos %}
+			
+			    <dt><b>Nombre: </b>{{row.nombre}} | ({{row.referencia}}) </dt>
+			    <dd><b>URL imagen: </b>{{row.imagen}} </dd>
+			    <dd><b>Precio: </b>{{row.precio}} EUROS</dd>
+			    <dd><b>Descripcion: </b>{{row.descripcion}} </dd>
+			        
+			{% endfor %}
+  {% endblock %}

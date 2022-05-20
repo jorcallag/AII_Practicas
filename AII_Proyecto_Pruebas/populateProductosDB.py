@@ -7,7 +7,7 @@ from tkinter import messagebox
 import re, os, shutil
 import sqlite3
 
-PAGINAS = 1
+PAGINAS = 3
 
 import os, ssl
 if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
@@ -32,7 +32,6 @@ def extraer_productos():
         for i in l:
                         
             nombre = i.find("meta", itemprop= "name")["content"]
-            print(nombre)
             imagen = i.find("meta", itemprop= "image")["content"]
             precio = i.find("meta", itemprop= "lowPrice")["content"]
             url1 = i.find("a", class_= "product_img_link")["href"]
@@ -41,13 +40,6 @@ def extraer_productos():
             
             referencia = s1.find("span", itemprop= "sku").string.strip()
             descripcion = s1.find("div", id= "short_description_content").getText();
-            
-            # d1 = s1.findAll("div", class_= "rte")
-            # descripcion = ""
-            # for d in d1:
-            #         d = d.getText()
-            #         if d != "\n":
-            #             descripcion = descripcion + d
             
             lista.append((nombre, imagen, referencia, precio, descripcion))
         

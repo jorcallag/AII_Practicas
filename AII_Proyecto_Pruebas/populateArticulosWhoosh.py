@@ -14,7 +14,7 @@ from distutils.log import info
 from enum import auto
 
 dirindex="Index"
-PAGINAS = 1 
+PAGINAS = 5 
 
 import os, ssl
 if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
