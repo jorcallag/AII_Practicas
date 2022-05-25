@@ -17,10 +17,15 @@
 		    <h3> Total de productos con precios menores al indicado:  {{ productos|length }}</h3>
 
 			{% for row in productos %}
+
 			    <dt><b>Nombre: </b>{{row.nombre}} | ({{row.referencia}}) </dt>
 			    <dd><b>URL imagen: </b>{{row.imagen}} </dd>
 			    <dd><b>Precio: </b>{{row.precio}} EUROS</dd>
-			    <dd><b>Descripcion: </b>{{row.descripcion}} </dd>    
+			    <dd><b>Descripcion: </b>{{row.descripcion}} </dd>
+			    <a href="{{row.imagen}}"><img src="{{row.imagen}}"></a>
+			    <br>
+			    <br>
+			    
 			{% endfor %}
 
 			</dl>
