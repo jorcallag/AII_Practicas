@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block encabezado %}
+<h1> Busqueda de animes por genero </h1>
+{% endblock %}
+   
+
+{% block contenido %} 
+
+    	<form id="formulario" method="post" action=''>{% csrf_token %}
+    		<fieldset>
+    			<legend>Busqueda de Animes</legend>
+				{{formulario}}
+    			<BR><BR>
+
+    			<input type='submit' value='Realizar Busqueda'/>
+    		</fieldset>
+    	</form>
+	    
+	    <hr>
+
+
+	    {% if animes %}
+		    <h3> Total de Animes con ese genero:  {{ animes|length }}</h3>
+
+			{% for row in animes %}
+			    <dt><b>Titulo: </b>{{row.titulo}}</dt>
+			    <dd><b>Generos: </b>{{row.generos}} </dd>
+			    <dd><b>Numero de episodios: </b>{{row.nEpisodios}}</dd>
+			    </dd>		    
+			{% endfor %}
+
+			</dl>
+
+		{% endif %}
+	</div>
+{% endblock %}

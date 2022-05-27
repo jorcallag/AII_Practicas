@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+  <meta charset='utf-8'>
+  <style>
+   {% block style_css %}{% endblock %}
+  </style>
+</head>
+<body>
+  <header> 
+  	{% block encabezado %}{% endblock %}
+
+ 			<dd><a href='/'>Inicio</a></dd>
+ 			<dd> ---------------------------------- </dd>
+ 			
+			<dd><a href='/animes'>Lista de animes</a></dd>
+			<dd><a href='/cargaDB'>Cargar la BD</a></dd>
+			<dd><a href='/busqueda_anime_genero'>Buscar animes por genero</a></dd>
+			<dd><a href='/recomendar_anime_usuario'>Recomendar animes a usuario</a></dd>
+			<dd> ---------------------------------- </dd>
+	<hr>
+  </header>
+  <section>
+    {% block contenido %}{% endblock %}
+  </section>
+  {% block pie %}{% endblock %} 
+</body>
+</html>

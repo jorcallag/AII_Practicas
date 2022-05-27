@@ -65,9 +65,9 @@ def lista_articulos(request): #ERROR
     ix=open_dir(dirindex)
     with ix.searcher() as searcher:
         articulos = searcher.search(query.Every())
+        print(len(articulos))
         
-        
-    return render(request,'articulos.html', {'articulos':articulos})
+        return render(request,'articulos.html', {'articulos':articulos})
 
 def buscar_productosporprecio(request):
     formulario = BusquedaPorPrecioForm()

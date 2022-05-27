@@ -1,0 +1,19 @@
+
+
+{% extends 'base.html' %}
+
+{% block encabezado %}
+<h1> Productos BrikoGeek </h1>
+{% endblock %}
+
+  {% block contenido %}
+			{% for row in animes %}
+			
+			    <dt><b>Titulo: </b>{{row.titulo}}</dt>
+			    <dd><b>Generos: </b>{{row.generos}} </dd>
+			    <dd><b>Numero de episodios: </b>{{row.nEpisodios}}</dd>
+			    <br>
+			    <br>
+			        
+			{% endfor %}
+  {% endblock %}
