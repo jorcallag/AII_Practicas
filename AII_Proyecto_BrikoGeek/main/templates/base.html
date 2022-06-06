@@ -1,31 +1,59 @@
 <!DOCTYPE html>
 <html lang='es'>
 <head>
-  <meta charset='utf-8'>
-  <style>
-   {% block style_css %}{% endblock %}
-  </style>
+	<meta charset='utf-8'>
+	<link rel="stylesheet" href="/static/css/uikit.min.css" />
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/uikit.min.js"></script>
 </head>
-<body>
-  <header> 
-  	{% block encabezado %}{% endblock %}
 
- 			<dd><a href='/'>Inicio</a></dd>
- 			<dd> ---------------------------------- </dd>
- 			
-			<dd><a href='/productos'>Lista de productos</a></dd>
-			<dd><a href='/buscar_productosporprecio'>Buscar productos por precio maximo</a></dd>
-			<dd><a href='/buscar_productospornombre'>Buscar productos por nombre</a></dd>
-			<dd><a href='/cargaDB'>Cargar la BD</a></dd>
-			<dd> ---------------------------------- </dd>
-			
-			<dd><a href='/articulos'>Lista de articulos</a></dd>
-			<dd><a href='/cargaWhoosh'>Cargar indexado de Whoosh</a></dd>
+<body>
+	<header> 
+	<h1> Proyecto Acceso Inteligente a la Informacion </h1>
+	<h2> (basado en web BrikoGeek) </h2>
 	<hr>
-  </header>
-  <section>
-    {% block contenido %}{% endblock %}
-  </section>
-  {% block pie %}{% endblock %} 
+	{% block encabezado %}{% endblock %}
+	    
+    <nav class="uk-navbar-container" uk-navbar>
+	    <div class="uk-navbar-left">
+	
+	    	<ul class="uk-navbar-nav">
+	        	<li class="uk-active"><a href="#">Inicio</a>
+	            	<div class="uk-navbar-dropdown">
+	            		<ul class="uk-nav uk-navbar-dropdown-nav">
+	                		<li><a href='/'>Inicio</a></li>
+	                    	<li><a href='/cargaDB'>Cargar productos</a></li>
+							<li><a href='/cargaWhoosh'>Cargar articulos</a></li>
+	                	</ul>
+	            	</div>
+	            </li>
+	            
+	            <li><a href="#">Listados</a>
+	                <div class="uk-navbar-dropdown">
+	                    <ul class="uk-nav uk-navbar-dropdown-nav">
+	 						<li><a href='/productos'>Lista de productos</a></li>
+							<li><a href='/articulos'>Lista de articulos</a></li>
+	                    </ul>
+	                </div>
+	            </li>
+	           	<li><a href="#">B&uacute;squedas</a>
+	                <div class="uk-navbar-dropdown">
+	                    <ul class="uk-nav uk-navbar-dropdown-nav">
+							<li><a href='/buscar_productosporprecio'>Buscar productos por precio maximo</a></li>
+							<li><a href='/buscar_productospornombre'>Buscar productos por nombre</a></li>
+							<li><a href='/buscar_articulosporcategoria'>Buscar articulos por categoria</a></li>
+							<li><a href='/buscar_articulosportitulo'>Buscar articulos por titulo</a></li>
+	                    </ul>
+	                </div>
+	            </li>
+	        </ul>
+		</div>
+	</nav>
+	<br>
+  	</header>
+<section>
+	{% block contenido %}{% endblock %}
+</section>
+  	{% block pie %}{% endblock %} 
 </body>
 </html>

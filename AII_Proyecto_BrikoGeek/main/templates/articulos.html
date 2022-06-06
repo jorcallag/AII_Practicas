@@ -1,5 +1,3 @@
-
-
 {% extends 'base.html' %}
 
 {% block encabezado %}
@@ -7,13 +5,14 @@
 {% endblock %}
 
   {% block contenido %}
+  		<h3> Total de articulos:  {{ articulos|length }}</h3>
 			{% for row in articulos %}
 			
-			    <dt>{{row.titulo}} </dt>
+			    <dd><b>{{row.titulo}} </b></dd>
 			    <dd><b>Autor: </b>{{row.autor}} </dd>
 			    <dd><b>Categoria: </b>{{row.categoria}} </dd>
 			    <dd><b>Descripcion: </b>{{row.descripcion}} </dd>
-			    <a href="{{row.imagen}}"><img src="{{row.imagen}}"></a>
+			    <dd href="{{row.imagen}}"><img src="{{row.imagen}}"></dd>
 			    <br>
 			    <br>
 			        

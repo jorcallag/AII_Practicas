@@ -4,7 +4,7 @@ import urllib.request
 import re, os, shutil
 
 from main.models import Producto
-from main.forms import BusquedaPorPrecioForm, BusquedaPorNombreForm
+from main.forms import BusquedaPorPrecioForm, BusquedaPorNombreForm, BusquedaPorCategoriaForm, BusquedaPorTituloForm
 from main.populateProductosDB import populateDB
 from django.shortcuts import render, redirect
 
@@ -12,16 +12,16 @@ from whoosh.index import create_in,open_dir
 from whoosh.fields import Schema, TEXT, NUMERIC, KEYWORD, ID
 from whoosh.qparser import QueryParser
 from whoosh import qparser, query
+from django.template.context_processors import request
 
 dirindex="Index"
-PAGINAS = 1 
+PAGINAS = 100
 
 import os, ssl
 if (not os.environ.get('PYTHONHTTPSVERIFY', '') and
 getattr(ssl, '_create_unverified_context', None)):
     ssl._create_default_https_context = ssl._create_unverified_context
 
-#carga los datos desde la web en la BD
 def cargaDB(request):
  
     if request.method=='POST':
@@ -56,16 +56,14 @@ def inicio(request):
     
     return render(request,'inicio.html', {'num_productos':num_productos, 'num_articulos':num_articulos})
 
-#muestra un listado con los datos de los productos
 def lista_productos(request):
     productos=Producto.objects.all()
     return render(request,'productos.html', {'productos':productos})
 
-def lista_articulos(request): #ERROR
+def lista_articulos(request):
     ix=open_dir(dirindex)
     with ix.searcher() as searcher:
         articulos = searcher.search(query.Every())
-        print(len(articulos))
         
         return render(request,'articulos.html', {'articulos':articulos})
 
@@ -87,19 +85,43 @@ def buscar_productospornombre(request):
     if request.method=='POST':
         formulario = BusquedaPorNombreForm(request.POST)      
         if formulario.is_valid():
-            productos = Producto.objects.filter(nombre__gte=formulario.cleaned_data['nombre'])
+            productos = Producto.objects.filter(nombre__contains=formulario.cleaned_data['nombre'])
             
     return render(request, 'productosbusquedapornombre.html', {'formulario':formulario, 'productos':productos})
 
+def buscar_articulosporcategoria(request):
+    formulario = BusquedaPorCategoriaForm()
+    articulos = None
+    
+    if request.method=='POST':
+        formulario = BusquedaPorCategoriaForm(request.POST)      
+        if formulario.is_valid():
+            ix=open_dir(dirindex)
+            with ix.searcher() as searcher:
+                query = QueryParser("categoria", ix.schema).parse(str(formulario))            
+                articulos = searcher.search(query)
+    
+    return render(request, 'articulosbusquedaporcategoria.html', {'formulario':formulario, 'articulos':articulos})
 
-
-
-        
+def buscar_articulosportitulo(request):
+    formulario = BusquedaPorTituloForm()
+    articulos = None
+    
+    if request.method=='POST':
+        formulario = BusquedaPorTituloForm(request.POST)      
+        if formulario.is_valid():
+            ix=open_dir("Index")
+            with ix.searcher() as searcher:
+                query = QueryParser("titulo", ix.schema).parse(str(formulario))
+                articulos = searcher.search(query)
+    
+    return render(request, 'articulosbusquedaportitulo.html', {'formulario':formulario, 'articulos':articulos})
+                
 def extraer_articulos_whoosh():
     lista=[]
     
     for p in range(1,PAGINAS+1):
-        url="https://blog.bricogeek.com/page/"+str(p)+"/"
+        url="https://blog.bricogeek.com/page/"+str(p)
         f = urllib.request.urlopen(url)
         s = BeautifulSoup(f,"lxml")      
         
@@ -111,9 +133,6 @@ def extraer_articulos_whoosh():
             infoPublicacion = i.find("span", itemprop="publisher")
             autor = infoPublicacion.find("strong", rel="author").string.strip()
             categoria = infoPublicacion.find("a").string.strip()
-            
-            # fecha = infoPublicacion.getText()
-            # print(fecha)
             
             imagen = i.find("div", class_="articulo_img").img['src']
             enlace = "https://blog.bricogeek.com" + i.a['href']
@@ -130,22 +149,17 @@ def extraer_articulos_whoosh():
     return lista
  
 def almacenar_datos_whoosh():
-    #define el esquema de la información
-    schem = Schema(titulo=TEXT(stored=True), autor=TEXT(stored=True), categoria=KEYWORD(stored=True,commas=True,lowercase=True), imagen=TEXT(stored=True), descripcion=TEXT(stored=True))
+    schem = Schema(titulo=TEXT(stored=True), autor=KEYWORD(stored=True,commas=True,lowercase=True), categoria=KEYWORD(stored=True,commas=True,lowercase=True), imagen=TEXT(stored=True), descripcion=TEXT(stored=True))
     
-    #eliminamos el directorio del índice, si existe
     if os.path.exists("Index"):
         shutil.rmtree("Index")
     os.mkdir("Index")
     
-    #creamos el índice
     ix = create_in("Index", schema=schem)
-    #creamos un writer para poder añadir documentos al indice
     writer = ix.writer()
     i=0
     lista=extraer_articulos_whoosh()
     for j in lista:
-        #añade cada articulo de la lista al índice
         writer.add_document(titulo=str(j[0]), autor=str(j[1]), categoria=str(j[2]), imagen=str(j[3]), descripcion=str(j[4]))    
         i+=1
     writer.commit()

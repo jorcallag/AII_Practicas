@@ -3,11 +3,11 @@
 {% extends 'base.html' %}
 
 {% block encabezado %}
-<h1> Carga de archivos de indexado de Whoosh. Confirmaci&oacute;n </h1>
+<h1> Carga de articulos (Whoosh). Confirmaci&oacute;n </h1>
 {% endblock %}
 
   {% block contenido %}
-    <h3>AVISO: Este proceso es lento, borra los archivos de indexado actuales y requiere conexi&oacute;n a internet</h3>
+    <h3>AVISO: Este proceso es lento, borra el indice actual y requiere conexi&oacute;n a internet</h3>
     <form id='formulario' method='post' action=''>{% csrf_token %}
 		<input type="submit" name="Aceptar" value="Aceptar">
 		<input type="submit" name="Cancelar" value="Cancelar">

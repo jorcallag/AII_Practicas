@@ -5,15 +5,12 @@ from bs4 import BeautifulSoup
 import urllib.request
 import lxml
 
-PAGINAS = 1
+PAGINAS = 3
         
 def populateDB():
     
-    #borramos todas las tablas de la BD
     Producto.objects.all().delete()
-    
-    #lista=[]
-    
+  
     for p in range(1,PAGINAS+1):
         url="https://tienda.bricogeek.com/5-arduino?p="+str(p)
         f = urllib.request.urlopen(url)
@@ -33,9 +30,6 @@ def populateDB():
             referencia = s1.find("span", itemprop= "sku").string.strip()
             descripcion = s1.find("div", id= "short_description_content").getText();
             
-            #ista.append((nombre, imagen, referencia, precio, descripcion))
-        
-            #almcenamos en al DB
             producto_obj = Producto.objects.get_or_create(nombre=nombre, imagen=imagen, 
                                                       precio=precio, referencia=referencia,
                                                       descripcion=descripcion)

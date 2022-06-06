@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block encabezado %}
-<h1> Busqueda de productos menores a un precio </h1>
+<h1> Busqueda de articulos por categoria</h1>
 {% endblock %}
 
 {% block contenido %}
@@ -13,18 +13,19 @@
 	    
 	    <hr>
 
-	    {% if productos %}
-		    <h3> Total de productos encontrados:  {{ productos|length }}</h3>
+	    {% if articulos %}
+		    <h3> Total de articulos encontrados:  {{ articulos|length }}</h3>
 
-			{% for row in productos %}
-
-			    <dd><b>{{row.nombre}} | (Ref: {{row.referencia}}) </b></dd>
-			    <dd><b>Precio: </b>{{row.precio}} EUROS</dd>
+			{% for row in articulos %}
+			
+			    <dd><b>{{row.titulo}} </b></dd>
+			    <dd><b>Autor: </b>{{row.autor}} </dd>
+			    <dd><b>Categoria: </b>{{row.categoria}} </dd>
 			    <dd><b>Descripcion: </b>{{row.descripcion}} </dd>
 			    <dd href="{{row.imagen}}"><img src="{{row.imagen}}"></dd>
 			    <br>
 			    <br>
-			    
+			     
 			{% endfor %}
 
 			</dl>
