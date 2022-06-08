@@ -19,7 +19,7 @@ class BusquedaPorNombreForm(forms.Form):
 class BusquedaPorCategoriaForm(forms.Form):
     ix=open_dir("Index")      
     with ix.searcher() as searcher:
-        lista_categorias = [i.decode('utf-8') for i in searcher.lexicon('categoria')]
+        lista_categorias = [(i.decode('utf-8'), i.decode('utf-8')) for i in searcher.lexicon('categoria')]
         
     categoria = forms.ChoiceField(label="Seleccione una categoria", choices = lista_categorias)
     

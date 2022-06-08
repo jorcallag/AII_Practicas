@@ -5,16 +5,21 @@
 {% endblock %}
 
   {% block contenido %}
+  		<hr>
   		<h3> Total de articulos:  {{ articulos|length }}</h3>
+  		<hr>
 			{% for row in articulos %}
 			
 			    <dd><b>{{row.titulo}} </b></dd>
 			    <dd><b>Autor: </b>{{row.autor}} </dd>
 			    <dd><b>Categoria: </b>{{row.categoria}} </dd>
 			    <dd><b>Descripcion: </b>{{row.descripcion}} </dd>
-			    <dd href="{{row.imagen}}"><img src="{{row.imagen}}"></dd>
+			    <br>
+			    <a href="{{row.enlace}}"><img src="{{row.imagen}}"/></a>
 			    <br>
 			    <br>
+			    <hr>
 			        
 			{% endfor %}
+		
   {% endblock %}

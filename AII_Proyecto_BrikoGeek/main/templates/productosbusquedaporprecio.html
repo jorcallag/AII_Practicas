@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block contenido %}
-
+		<hr>
     	<form id="formulario" method="post" action=''>{% csrf_token %}
     		{{formulario}}
     		<input type='submit' value='Realizar B&uacute;squeda'/>
@@ -14,7 +14,9 @@
 	    <hr>
 
 	    {% if productos %}
+	    	
 		    <h3> Total de productos encontrados:  {{ productos|length }}</h3>
+		    <hr>
 
 			{% for row in productos %}
 
@@ -23,7 +25,7 @@
 			    <dd><b>Descripcion: </b>{{row.descripcion}} </dd>
 			    <dd href="{{row.imagen}}"><img src="{{row.imagen}}"></dd>
 			    <br>
-			    <br>
+			    <hr>
 			    
 			{% endfor %}
 

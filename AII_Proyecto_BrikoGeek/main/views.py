@@ -63,7 +63,7 @@ def lista_productos(request):
 def lista_articulos(request):
     ix=open_dir(dirindex)
     with ix.searcher() as searcher:
-        articulos = searcher.search(query.Every())
+        articulos = searcher.search(query.Every(), limit=1000)
         
         return render(request,'articulos.html', {'articulos':articulos})
 
@@ -92,30 +92,51 @@ def buscar_productospornombre(request):
 def buscar_articulosporcategoria(request):
     formulario = BusquedaPorCategoriaForm()
     articulos = None
+    lista = []
     
     if request.method=='POST':
         formulario = BusquedaPorCategoriaForm(request.POST)      
         if formulario.is_valid():
             ix=open_dir(dirindex)
             with ix.searcher() as searcher:
-                query = QueryParser("categoria", ix.schema).parse(str(formulario))            
-                articulos = searcher.search(query)
+                query = QueryParser("categoria", ix.schema).parse(formulario.cleaned_data['categoria'])            
+                articulos = searcher.search(query, limit=1000)
+                
+                for r in articulos:
+                    titulo = r.values()[5]
+                    autor = r.values()[0] 
+                    categoria = r.values()[1] 
+                    imagen = r.values()[4] 
+                    descripcion = r.values()[2] 
+                    enlace = r.values()[3]
+                    lista.append([titulo, autor, categoria, imagen, descripcion, enlace])
     
-    return render(request, 'articulosbusquedaporcategoria.html', {'formulario':formulario, 'articulos':articulos})
+    return render(request, 'articulosbusquedaporcategoria.html', {'formulario':formulario, 'articulos':lista})
+
 
 def buscar_articulosportitulo(request):
     formulario = BusquedaPorTituloForm()
     articulos = None
+    lista = []
     
     if request.method=='POST':
         formulario = BusquedaPorTituloForm(request.POST)      
         if formulario.is_valid():
             ix=open_dir("Index")
             with ix.searcher() as searcher:
-                query = QueryParser("titulo", ix.schema).parse(str(formulario))
-                articulos = searcher.search(query)
+                query = QueryParser("titulo", ix.schema).parse(formulario.cleaned_data['titulo'])
+                articulos = searcher.search(query, limit=1000)
+                
+                for r in articulos:
+                    titulo = r.values()[5]
+                    autor = r.values()[0] 
+                    categoria = r.values()[1] 
+                    imagen = r.values()[4] 
+                    descripcion = r.values()[2] 
+                    enlace = r.values()[3]
+                    lista.append([titulo, autor, categoria, imagen, descripcion, enlace])
     
-    return render(request, 'articulosbusquedaportitulo.html', {'formulario':formulario, 'articulos':articulos})
+    return render(request, 'articulosbusquedaportitulo.html', {'formulario':formulario, 'articulos':lista})
                 
 def extraer_articulos_whoosh():
     lista=[]
@@ -143,24 +164,24 @@ def extraer_articulos_whoosh():
                     d = d.getText()
                     if d != "\n":
                         descripcion = descripcion + d
-            descripcion = descripcion + ": " + enlace + "\n"    
-            lista.append((titulo, autor, categoria, imagen, descripcion))
+            descripcion = descripcion + ":"
+            lista.append((titulo, autor, categoria, imagen, descripcion, enlace))
         
     return lista
  
 def almacenar_datos_whoosh():
-    schem = Schema(titulo=TEXT(stored=True), autor=KEYWORD(stored=True,commas=True,lowercase=True), categoria=KEYWORD(stored=True,commas=True,lowercase=True), imagen=TEXT(stored=True), descripcion=TEXT(stored=True))
+    schem = Schema(titulo=TEXT(stored=True), autor=KEYWORD(stored=True,commas=True,lowercase=True), categoria=KEYWORD(stored=True,commas=True,lowercase=True), imagen=TEXT(stored=True), descripcion=TEXT(stored=True), enlace=TEXT(stored=True))
     
-    if os.path.exists("Index"):
-        shutil.rmtree("Index")
-    os.mkdir("Index")
+    #if os.path.exists("Index"):
+    #    shutil.rmtree("Index")
+    #os.mkdir("Index")
     
     ix = create_in("Index", schema=schem)
     writer = ix.writer()
     i=0
     lista=extraer_articulos_whoosh()
     for j in lista:
-        writer.add_document(titulo=str(j[0]), autor=str(j[1]), categoria=str(j[2]), imagen=str(j[3]), descripcion=str(j[4]))    
+        writer.add_document(titulo=str(j[0]), autor=str(j[1]), categoria=str(j[2]), imagen=str(j[3]), descripcion=str(j[4]), enlace=str(j[5]))    
         i+=1
     writer.commit()
     

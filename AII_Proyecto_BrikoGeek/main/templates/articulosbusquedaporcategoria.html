@@ -5,26 +5,29 @@
 {% endblock %}
 
 {% block contenido %}
-
+		<hr>
     	<form id="formulario" method="post" action=''>{% csrf_token %}
     		{{formulario}}
     		<input type='submit' value='Realizar B&uacute;squeda'/>
     	</form>
-	    
 	    <hr>
+	    
 
 	    {% if articulos %}
+	    	
 		    <h3> Total de articulos encontrados:  {{ articulos|length }}</h3>
-
+			<hr>
 			{% for row in articulos %}
 			
-			    <dd><b>{{row.titulo}} </b></dd>
-			    <dd><b>Autor: </b>{{row.autor}} </dd>
-			    <dd><b>Categoria: </b>{{row.categoria}} </dd>
-			    <dd><b>Descripcion: </b>{{row.descripcion}} </dd>
-			    <dd href="{{row.imagen}}"><img src="{{row.imagen}}"></dd>
+			    <dd><b>{{row.0}} </b></dd>
+			    <dd><b>Autor: </b>{{row.1}} </dd>
+			    <dd><b>Categoria: </b>{{row.2}} </dd>
+			    <dd><b>Descripcion: </b>{{row.4}} </dd>
+			    <br>
+			    <a href="{{row.5}}"><img src="{{row.3}}"/></a>
 			    <br>
 			    <br>
+			    <hr>
 			     
 			{% endfor %}
 
